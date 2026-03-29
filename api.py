@@ -1,15 +1,31 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# ICD-10 code generation endpoint
-@app.route('/generate_icd10', methods=['POST'])
-def generate_icd10():
+# Sample ICD-10-PCS codes for demonstration
+icd10_pcs_codes = {
+    '0FBD0ZZ': 'Excision of right upper lung, open approach',
+    '0FBC0ZZ': 'Excision of left upper lung, open approach',
+    '0FBF0ZZ': 'Excision of right lower lung, open approach',
+    '0FBG0ZZ': 'Excision of left lower lung, open approach'
+}
+
+@app.route('/search', methods=['GET'])
+def search_icd_code():
+    code = request.args.get('code')
+    if code in icd10_pcs_codes:
+        return jsonify({'code': code, 'description': icd10_pcs_codes[code], 'valid': True}), 200
+    else:
+        return jsonify({'code': code, 'valid': False}), 404
+
+@app.route('/validate', methods=['POST'])
+def validate_icd_code():
     data = request.get_json()
-    # Here you would implement the logic for generating ICD-10 codes
-    # For now, we'll return a mock response
-    icd10_code = "A00"  # This is a placeholder for actual ICD-10 code generation logic
-    return jsonify({'icd10_code': icd10_code}), 200
+    code = data.get('code')
+    if code in icd10_pcs_codes:
+        return jsonify({'code': code, 'description': icd10_pcs_codes[code], 'valid': True}), 200
+    else:
+        return jsonify({'code': code, 'valid': False}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
